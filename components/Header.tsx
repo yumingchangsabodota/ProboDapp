@@ -1,5 +1,10 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const Wallet = dynamic(() => import('./Wallet'), { ssr: false });
 
 interface HeaderProps {
   // Add props here as needed
@@ -18,27 +23,9 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
             </Link>
           </div>
 
-          {/* Navigation section */}
-          <nav className="d-none d-md-flex gap-4">
-            <Link
-              href="/authenticity/docs"
-              className="text-secondary text-decoration-none fw-medium"
-            >
-              Authenticity
-            </Link>
-            <Link
-              href="/whitelist-entity/register"
-              className="text-secondary text-decoration-none fw-medium"
-            >
-              Whitelist Entity
-            </Link>
-          </nav>
-
           {/* Right section (user menu, actions, etc.) */}
           <div className="d-flex align-items-center gap-3">
-            <button className="btn btn-primary fw-medium">
-              Connect Wallet
-            </button>
+            <Wallet />
           </div>
         </div>
       </div>
