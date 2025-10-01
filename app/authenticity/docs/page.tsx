@@ -12,7 +12,7 @@ export default function AuthenticityDocsPage() {
           >
             ← Back to Home
           </Link>
-          <h1 className="display-5 fw-bold mb-2">
+          <h1 className="display-5 fw-bold mb-2" style={{ color: "#ededed" }}>
             Document Authenticity Verification
           </h1>
           <p className="text-secondary">
@@ -29,7 +29,7 @@ export default function AuthenticityDocsPage() {
               </svg>
             </div>
 
-            <h2 className="h3 fw-semibold mb-3">
+            <h2 className="h3 fw-semibold mb-3" style={{ color: "#ededed" }}>
               Document Verification System
             </h2>
 
@@ -41,7 +41,7 @@ export default function AuthenticityDocsPage() {
             <div className="row g-3 mx-auto text-start" style={{ maxWidth: "700px" }}>
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Upload Documents
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -52,7 +52,7 @@ export default function AuthenticityDocsPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Verify Authenticity
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -63,7 +63,7 @@ export default function AuthenticityDocsPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Blockchain Records
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -74,7 +74,7 @@ export default function AuthenticityDocsPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Certificate Generation
                   </h3>
                   <p className="small text-secondary mb-0">

@@ -12,7 +12,7 @@ export default function WhitelistEntityRegisterPage() {
           >
             ← Back to Home
           </Link>
-          <h1 className="display-5 fw-bold mb-2">
+          <h1 className="display-5 fw-bold mb-2" style={{ color: "#ededed" }}>
             Whitelist Entity Registration
           </h1>
           <p className="text-secondary">
@@ -29,7 +29,7 @@ export default function WhitelistEntityRegisterPage() {
               </svg>
             </div>
 
-            <h2 className="h3 fw-semibold mb-3">
+            <h2 className="h3 fw-semibold mb-3" style={{ color: "#ededed" }}>
               Entity Whitelist Management
             </h2>
 
@@ -41,7 +41,7 @@ export default function WhitelistEntityRegisterPage() {
             <div className="row g-3 mx-auto text-start" style={{ maxWidth: "700px" }}>
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Register Entity
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -52,7 +52,7 @@ export default function WhitelistEntityRegisterPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Verify Credentials
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -63,7 +63,7 @@ export default function WhitelistEntityRegisterPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Manage Whitelist
                   </h3>
                   <p className="small text-secondary mb-0">
@@ -74,7 +74,7 @@ export default function WhitelistEntityRegisterPage() {
 
               <div className="col-md-6">
                 <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2">
+                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
                     Audit Trail
                   </h3>
                   <p className="small text-secondary mb-0">

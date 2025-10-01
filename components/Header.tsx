@@ -8,12 +8,12 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ className = '' }) => {
   return (
-    <header className={`w-100 bg-white shadow-sm border-bottom ${className}`}>
+    <header className={`w-100 shadow-sm border-bottom ${className}`} style={{ backgroundColor: "#1a1a1a" }}>
       <div className="container-fluid" style={{ maxWidth: "1320px" }}>
         <div className="d-flex justify-content-between align-items-center" style={{ height: "64px" }}>
           {/* Logo/Brand section */}
           <div className="d-flex align-items-center">
-            <Link href="/" className="fs-5 fw-bold text-dark text-decoration-none">
+            <Link href="/" className="fs-5 fw-bold text-decoration-none" style={{ color: "#ededed" }}>
               Probo DApp
             </Link>
           </div>
