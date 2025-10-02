@@ -154,8 +154,9 @@ const Wallet: React.FC = () => {
       setAmount('');
 
       // Refresh balance
-      const accountInfo: any = await api.query.system.account(selectedAccount.address);
-      const balanceData = accountInfo.data;
+      const accountInfo = await api.query.system.account(selectedAccount.address);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const balanceData = (accountInfo as any).data;
       const divisor = Math.pow(10, decimals);
       const free = (Number(balanceData.free.toString()) / divisor).toFixed(4);
       const reserved = (Number(balanceData.reserved.toString()) / divisor).toFixed(4);
