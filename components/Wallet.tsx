@@ -5,6 +5,7 @@ import { WalletConnector } from '../lib/WalletConnect';
 import { NodeProvider } from '../lib/NodeProvider';
 import type { InjectedAccountWithMeta } from '@polkadot/extension-inject/types';
 import { ApiPromise } from '@polkadot/api';
+import { useWallet } from '@/contexts/WalletContext';
 
 interface BalanceInfo {
   free: string;
@@ -13,8 +14,8 @@ interface BalanceInfo {
 }
 
 const Wallet: React.FC = () => {
+  const { selectedAccount, setSelectedAccount } = useWallet();
   const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
-  const [selectedAccount, setSelectedAccount] = useState<InjectedAccountWithMeta | null>(null);
   const [balance, setBalance] = useState<BalanceInfo>({ free: '0', reserved: '0', frozen: '0' });
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string>('');

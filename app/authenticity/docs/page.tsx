@@ -1,6 +1,74 @@
+"use client";
+
 import Link from "next/link";
+import { useState, useMemo } from "react";
+import { DocSigner } from "@/lib/DocSigner";
+import { useWallet } from "@/contexts/WalletContext";
 
 export default function AuthenticityDocsPage() {
+  const { selectedAccount } = useWallet();
+  const [inputs, setInputs] = useState<string[]>([""]);
+  const [isSigning, setIsSigning] = useState(false);
+  const [overallSignature, setOverallSignature] = useState<string>("");
+
+  const docSigner = useMemo(() => new DocSigner(), []);
+
+  const handleAdd = () => {
+    setInputs([...inputs, ""]);
+  };
+
+  const handleInputChange = (index: number, value: string) => {
+    const newInputs = [...inputs];
+    newInputs[index] = value;
+    setInputs(newInputs);
+  };
+
+  const handleRemove = (index: number) => {
+    if (inputs.length > 1) {
+      const newInputs = inputs.filter((_, i) => i !== index);
+      setInputs(newInputs);
+    }
+  };
+
+  const getEncryptedHash = (value: string): string => {
+    if (!value.trim()) return "";
+    if (!selectedAccount) return "Please connect wallet";
+    try {
+      return docSigner.encryptDocument(selectedAccount.address, value);
+    } catch (error) {
+      return "Error generating hash";
+    }
+  };
+
+  const handleSignDocuments = async () => {
+    if (!selectedAccount) {
+      alert("Please connect wallet");
+      return;
+    }
+
+    // Get all encrypted hashes from non-empty inputs
+    const encryptedHashes = inputs
+      .filter(input => input.trim())
+      .map(input => getEncryptedHash(input));
+
+    if (encryptedHashes.length === 0) {
+      alert("No documents to sign");
+      return;
+    }
+
+    setIsSigning(true);
+    try {
+      const signature = await docSigner.signDocuments(selectedAccount.address, encryptedHashes);
+      setOverallSignature(signature);
+      console.log("Signature:", signature);
+    } catch (error) {
+      console.error("Error signing documents:", error);
+      alert("Error signing documents");
+    } finally {
+      setIsSigning(false);
+    }
+  };
+
   return (
     <div className="bg-light" style={{ minHeight: "calc(100vh - 4rem)" }}>
       <div className="container py-4" style={{ maxWidth: "900px" }}>
@@ -13,7 +81,7 @@ export default function AuthenticityDocsPage() {
             ← Back to Home
           </Link>
           <h1 className="display-5 fw-bold mb-2" style={{ color: "#ededed" }}>
-            Document Authenticity Verification
+            Document Authenticity Store
           </h1>
           <p className="text-secondary">
             Verify and validate the authenticity of digital documents and certificates
@@ -22,78 +90,90 @@ export default function AuthenticityDocsPage() {
 
         {/* Main Content */}
         <div className="card shadow-sm border p-4">
-          <div className="text-center py-5">
-            <div className="text-primary mb-4">
-              <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="mx-auto">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-            </div>
-
-            <h2 className="h3 fw-semibold mb-3" style={{ color: "#ededed" }}>
-              Document Verification System
-            </h2>
-
-            <p className="text-secondary mb-4 mx-auto" style={{ maxWidth: "700px" }}>
-              This page will allow users to upload and verify the authenticity of digital documents,
-              certificates, and other important files using blockchain technology.
-            </p>
-
-            <div className="row g-3 mx-auto text-start" style={{ maxWidth: "700px" }}>
-              <div className="col-md-6">
-                <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
-                    Upload Documents
-                  </h3>
-                  <p className="small text-secondary mb-0">
-                    Securely upload documents for verification
-                  </p>
+          <div className="py-5">
+            <div className="mx-auto" style={{ maxWidth: "600px" }}>
+              {inputs.map((input, index) => (
+                <div key={index} className="mb-4">
+                  <div className="d-flex gap-2 align-items-center">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Enter document ID or hash..."
+                      value={input}
+                      onChange={(e) => handleInputChange(index, e.target.value)}
+                    />
+                    <button
+                      className="btn btn-outline-danger"
+                      onClick={() => handleRemove(index)}
+                      disabled={inputs.length === 1}
+                    >
+                      <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" />
+                      </svg>
+                    </button>
+                  </div>
+                  {input.trim() && (
+                    <div className="mt-2 p-2 bg-light rounded border">
+                      <small className="text-secondary d-block mb-1">Encrypted Hash:</small>
+                      <code className="text-break small">{getEncryptedHash(input)}</code>
+                    </div>
+                  )}
                 </div>
-              </div>
+              ))}
 
-              <div className="col-md-6">
-                <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
-                    Verify Authenticity
-                  </h3>
-                  <p className="small text-secondary mb-0">
-                    Check document integrity and authenticity
-                  </p>
+              {inputs.length < 10 && (
+                <div className="text-center mt-4">
+                  <button className="btn btn-primary" onClick={handleAdd}>
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
+                    </svg>
+                  </button>
                 </div>
-              </div>
+              )}
 
-              <div className="col-md-6">
-                <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
-                    Blockchain Records
-                  </h3>
-                  <p className="small text-secondary mb-0">
-                    Immutable verification records on blockchain
-                  </p>
+              {/* Sign Documents Button */}
+              {inputs.some(input => input.trim()) && (
+                <div className="text-center mt-4">
+                  <button
+                    className="btn btn-success fw-medium px-4 py-2"
+                    onClick={handleSignDocuments}
+                    disabled={isSigning || !selectedAccount}
+                  >
+                    {isSigning ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Signing...
+                      </>
+                    ) : (
+                      'Sign Documents'
+                    )}
+                  </button>
                 </div>
-              </div>
-
-              <div className="col-md-6">
-                <div className="bg-light p-4 rounded">
-                  <h3 className="fw-semibold mb-2" style={{ color: "#ededed" }}>
-                    Certificate Generation
-                  </h3>
-                  <p className="small text-secondary mb-0">
-                    Generate verification certificates
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <button
-                className="btn btn-primary fw-medium px-4 py-2"
-                disabled
-              >
-                Coming Soon - Upload Document
-              </button>
+              )}
             </div>
           </div>
         </div>
+
+        {/* Overall Signature Display */}
+        {overallSignature && (
+          <div className="card shadow-sm border p-4 mt-4">
+            <h2 className="h5 fw-semibold mb-3" style={{ color: "#ededed" }}>
+              Overall Signature
+            </h2>
+            <div className="p-3 bg-dark rounded border mb-3">
+              <small className="text-secondary d-block mb-2">Combined Signature:</small>
+              <code className="text-break small text-success">{overallSignature}</code>
+            </div>
+            <div className="text-center">
+              <button
+                className="btn btn-primary fw-medium px-4 py-2"
+                onClick={() => alert("Store functionality coming soon!")}
+              >
+                Store Documents Signature
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

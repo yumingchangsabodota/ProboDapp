@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect, useMemo } from "react";
 import { ApiPromise } from '@polkadot/api';
 import { NodeProvider } from '../../../lib/NodeProvider';
+import { useWallet } from '@/contexts/WalletContext';
 
 interface EntityInfo {
   address: string;
@@ -11,7 +12,8 @@ interface EntityInfo {
 }
 
 export default function WhitelistEntityRegisterPage() {
-  const [selectedAddress, setSelectedAddress] = useState<string>('');
+  const { selectedAccount } = useWallet();
+  const selectedAddress = selectedAccount?.address || '';
   const [isRegistering, setIsRegistering] = useState(false);
   const [isChecking, setIsChecking] = useState(false);
   const [isRegistered, setIsRegistered] = useState(false);
@@ -23,28 +25,6 @@ export default function WhitelistEntityRegisterPage() {
   const [itemsPerPage] = useState(10);
 
   const nodeProvider = useMemo(() => new NodeProvider(), []);
-
-  useEffect(() => {
-    // Get the selected wallet address from localStorage
-    const updateAddress = () => {
-      const savedAddress = localStorage.getItem('selectedAddress');
-      setSelectedAddress(savedAddress || '');
-    };
-
-    // Initial load
-    updateAddress();
-
-    // Listen for storage changes (when wallet selection changes)
-    window.addEventListener('storage', updateAddress);
-
-    // Also poll for changes since storage event doesn't fire in same tab
-    const interval = setInterval(updateAddress, 500);
-
-    return () => {
-      window.removeEventListener('storage', updateAddress);
-      clearInterval(interval);
-    };
-  }, []);
 
   // Check if address is registered whenever it changes
   useEffect(() => {
