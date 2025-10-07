@@ -16,6 +16,7 @@ export default function AuthenticityDocsPage() {
   const [isStoring, setIsStoring] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
+  const [isStored, setIsStored] = useState(false);
 
   const docSigner = useMemo(() => new DocSigner(), []);
   const nodeProvider = useMemo(() => new NodeProvider(), []);
@@ -155,6 +156,7 @@ export default function AuthenticityDocsPage() {
       });
 
       setSuccess(`Documents stored successfully on blockchain! Transaction hash: ${blockHash}`);
+      setIsStored(true);
       await api.disconnect();
     } catch (error) {
       console.error("Store failed:", error);
@@ -165,9 +167,19 @@ export default function AuthenticityDocsPage() {
     }
   };
 
+  const handleStoreNew = () => {
+    // Reset all states to start fresh
+    setInputs([""]);
+    setOverallSignature("");
+    setExpirationBlock("0");
+    setError("");
+    setSuccess("");
+    setIsStored(false);
+  };
+
   return (
     <div className="bg-light" style={{ minHeight: "calc(100vh - 4rem)" }}>
-      <div className="container py-4" style={{ maxWidth: "900px" }}>
+      <div className="container py-4" style={{ maxWidth: "1200px" }}>
         {/* Header */}
         <div className="mb-4">
           <Link
@@ -187,7 +199,7 @@ export default function AuthenticityDocsPage() {
         {/* Main Content */}
         <div className="card shadow-sm border p-4">
           <div className="py-5">
-            <div className="mx-auto" style={{ maxWidth: "600px" }}>
+            <div className="mx-auto" style={{ maxWidth: "900px" }}>
               {inputs.map((input, index) => (
                 <div key={index} className="mb-4">
                   <div className="d-flex gap-2 align-items-center">
@@ -273,6 +285,20 @@ export default function AuthenticityDocsPage() {
                   </div>
 
                   <div className="mb-3">
+                    <small className="text-secondary d-block mb-2">Documents:</small>
+                    {inputs
+                      .filter(input => input.trim())
+                      .map((input, index) => (
+                        <div key={index} className="mb-2">
+                          <div className="ms-2">
+                            <small className="text-secondary">{index + 1}. </small>
+                            <code className="text-break small text-info">{getEncryptedHash(input)}</code>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+
+                  <div className="mb-3">
                     <small className="text-secondary d-block mb-1">Combined Signature:</small>
                     <code className="text-break small text-success">{overallSignature}</code>
                   </div>
@@ -285,7 +311,7 @@ export default function AuthenticityDocsPage() {
               )}
 
               {/* Sign/Store Documents Button */}
-              {inputs.some(input => input.trim()) && (
+              {inputs.some(input => input.trim()) && !isStored && (
                 <div className="text-center mt-4">
                   <button
                     className="btn btn-success fw-medium px-4 py-2"
@@ -307,6 +333,18 @@ export default function AuthenticityDocsPage() {
                     ) : (
                       'Sign Documents'
                     )}
+                  </button>
+                </div>
+              )}
+
+              {/* Store New Button */}
+              {isStored && (
+                <div className="text-center mt-4">
+                  <button
+                    className="btn btn-primary fw-medium px-4 py-2"
+                    onClick={handleStoreNew}
+                  >
+                    Store New Signature
                   </button>
                 </div>
               )}
