@@ -11,10 +11,10 @@ export default function Home() {
           Choose a service to get started
         </p>
 
-        <div className="row g-4 mx-auto" style={{ maxWidth: "700px" }}>
-          <div className="col-md-6">
+        <div className="row g-4 mx-auto" style={{ maxWidth: "900px" }}>
+          <div className="col-md-4">
             <Link
-              href="/authenticity/docs"
+              href="/authenticity/store"
               className="card h-100 text-decoration-none shadow-sm hover-shadow"
               style={{ transition: "all 0.2s", borderColor: "#3b82f6" }}
             >
@@ -25,16 +25,38 @@ export default function Home() {
                   </svg>
                 </div>
                 <h2 className="h5 fw-semibold mb-2" style={{ color: "#ededed" }}>
-                  Authenticity
+                  Store Signature
                 </h2>
                 <p className="text-secondary mb-0">
-                  Verify and validate digital certificates
+                  Sign and store document signatures
                 </p>
               </div>
             </Link>
           </div>
 
-          <div className="col-md-6">
+          <div className="col-md-4">
+            <Link
+              href="/authenticity/verify"
+              className="card h-100 text-decoration-none shadow-sm hover-shadow"
+              style={{ transition: "all 0.2s", borderColor: "#8b5cf6" }}
+            >
+              <div className="card-body p-4">
+                <div className="mb-3" style={{ color: "#8b5cf6" }}>
+                  <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" className="mx-auto">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h2 className="h5 fw-semibold mb-2" style={{ color: "#ededed" }}>
+                  Verify Signature
+                </h2>
+                <p className="text-secondary mb-0">
+                  Verify document signatures
+                </p>
+              </div>
+            </Link>
+          </div>
+
+          <div className="col-md-4">
             <Link
               href="/whitelist-entity/register"
               className="card h-100 text-decoration-none shadow-sm hover-shadow"

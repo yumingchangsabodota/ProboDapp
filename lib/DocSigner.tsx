@@ -1,4 +1,4 @@
-import { decodeAddress } from '@polkadot/util-crypto';
+import { decodeAddress, signatureVerify } from '@polkadot/util-crypto';
 import { u8aToHex, stringToHex } from '@polkadot/util';
 import { blake2AsU8a } from '@polkadot/util-crypto';
 
@@ -74,6 +74,38 @@ export class DocSigner {
         throw new Error(`Failed to sign documents: ${error.message}`);
       }
       throw new Error('Failed to sign documents: Unknown error');
+    }
+  }
+
+  /**
+   * Verifies a signature using the issuer's public key and a reconstructed message
+   *
+   * @param signature - The signature to verify (hex string from signRaw)
+   * @param walletAddress - The issuer's wallet address (contains public key)
+   * @param encryptedHashes - The encrypted document hashes to verify against
+   * @returns true if signature is valid, false otherwise
+   */
+  verifySignature(signature: string, walletAddress: string, encryptedHashes: string[]): boolean {
+    try {
+      // Decode the public key from the issuer's wallet address
+      const publicKey = decodeAddress(walletAddress);
+
+      // Reconstruct the original message that should have been signed
+      // This is the same process as in signDocuments():
+      // 1. Join encrypted hashes with separator
+      // 2. Convert to hex
+      const combinedDocs = encryptedHashes.join('::PROBO::');
+      const messageHex = stringToHex(combinedDocs);
+
+      // Verify the signature using the public key and reconstructed message
+      const { isValid } = signatureVerify(messageHex, signature, publicKey);
+
+      return isValid;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to verify signature: ${error.message}`);
+      }
+      throw new Error('Failed to verify signature: Unknown error');
     }
   }
 }
