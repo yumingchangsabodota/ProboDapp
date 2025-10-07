@@ -4,14 +4,21 @@ import Link from "next/link";
 import { useState, useMemo } from "react";
 import { DocSigner } from "@/lib/DocSigner";
 import { useWallet } from "@/contexts/WalletContext";
+import { ApiPromise } from '@polkadot/api';
+import { NodeProvider } from '@/lib/NodeProvider';
 
 export default function AuthenticityDocsPage() {
   const { selectedAccount } = useWallet();
   const [inputs, setInputs] = useState<string[]>([""]);
   const [isSigning, setIsSigning] = useState(false);
   const [overallSignature, setOverallSignature] = useState<string>("");
+  const [expirationBlock, setExpirationBlock] = useState<string>("0");
+  const [isStoring, setIsStoring] = useState(false);
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
 
   const docSigner = useMemo(() => new DocSigner(), []);
+  const nodeProvider = useMemo(() => new NodeProvider(), []);
 
   const handleAdd = () => {
     setInputs([...inputs, ""]);
@@ -41,8 +48,11 @@ export default function AuthenticityDocsPage() {
   };
 
   const handleSignDocuments = async () => {
+    setError("");
+    setSuccess("");
+
     if (!selectedAccount) {
-      alert("Please connect wallet");
+      setError("Please connect wallet");
       return;
     }
 
@@ -52,7 +62,7 @@ export default function AuthenticityDocsPage() {
       .map(input => getEncryptedHash(input));
 
     if (encryptedHashes.length === 0) {
-      alert("No documents to sign");
+      setError("No documents to sign");
       return;
     }
 
@@ -63,9 +73,95 @@ export default function AuthenticityDocsPage() {
       console.log("Signature:", signature);
     } catch (error) {
       console.error("Error signing documents:", error);
-      alert("Error signing documents");
+      setError(error instanceof Error ? error.message : "Error signing documents");
     } finally {
       setIsSigning(false);
+    }
+  };
+
+  const handleStoreDocuments = async () => {
+    setError("");
+    setSuccess("");
+
+    if (!selectedAccount) {
+      setError("Please connect wallet");
+      return;
+    }
+
+    if (!overallSignature) {
+      setError("Please sign documents first");
+      return;
+    }
+
+    setIsStoring(true);
+    try {
+      const provider = nodeProvider.getProvider();
+      const api = await ApiPromise.create({ provider });
+
+      // Get injector for signing
+      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+      const injector = await web3FromAddress(selectedAccount.address);
+
+      // Parse expiration block (use 0 if empty for no expiration)
+      const expiration = expirationBlock ? parseInt(expirationBlock, 10) : 0;
+
+      // Call storeProof extrinsic
+      const storeTx = api.tx.proof.storeProof(overallSignature, expiration);
+
+      let blockHash = '';
+
+      await new Promise((resolve, reject) => {
+        storeTx.signAndSend(
+          selectedAccount.address,
+          { signer: injector.signer },
+          ({ status, events }) => {
+            if (status.isInBlock) {
+              console.log(`Transaction included in block hash: ${status.asInBlock}`);
+            }
+            if (status.isFinalized) {
+              blockHash = status.asFinalized.toString();
+              console.log(`Transaction finalized at block hash: ${blockHash}`);
+
+              // Check for errors in events
+              let errorMessage = '';
+              events.forEach(({ event }) => {
+                if (api.events.system.ExtrinsicFailed.is(event)) {
+                  // Extract the error details
+                  const [dispatchError] = event.data;
+
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  const error = dispatchError as any;
+
+                  if (error.isModule) {
+                    // Decode the module error
+                    const decoded = api.registry.findMetaError(error.asModule);
+                    const { docs, name, section } = decoded;
+                    errorMessage = `${section}.${name}: ${docs.join(' ')}`;
+                  } else {
+                    // Other error types
+                    errorMessage = error.toString();
+                  }
+                }
+              });
+
+              if (errorMessage) {
+                reject(new Error(errorMessage));
+              } else {
+                resolve(true);
+              }
+            }
+          }
+        ).catch(reject);
+      });
+
+      setSuccess(`Documents stored successfully on blockchain! Transaction hash: ${blockHash}`);
+      await api.disconnect();
+    } catch (error) {
+      console.error("Store failed:", error);
+      const errorMsg = error instanceof Error ? error.message : "Failed to store documents";
+      setError(`Failed to store documents: ${errorMsg}`);
+    } finally {
+      setIsStoring(false);
     }
   };
 
@@ -121,7 +217,7 @@ export default function AuthenticityDocsPage() {
                 </div>
               ))}
 
-              {inputs.length < 10 && (
+              {inputs.length < 10 && !overallSignature && (
                 <div className="text-center mt-4">
                   <button className="btn btn-primary" onClick={handleAdd}>
                     <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24">
@@ -131,49 +227,106 @@ export default function AuthenticityDocsPage() {
                 </div>
               )}
 
-              {/* Sign Documents Button */}
+              {/* Expiration Block Input */}
+              {inputs.some(input => input.trim()) && (
+                <div className="mt-4">
+                  <label className="form-label text-secondary small">Expiration Block Number (Optional)</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter block number..."
+                    value={expirationBlock}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      // Only allow numbers
+                      if (value === '' || /^\d+$/.test(value)) {
+                        const numValue = parseInt(value, 10);
+                        // Cap at 52560000
+                        if (numValue > 52560000) {
+                          setExpirationBlock('52560000');
+                        } else {
+                          setExpirationBlock(value);
+                        }
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      // Prevent non-numeric characters from being typed
+                      if (!/\d/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight' && e.key !== 'Tab') {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                  <div className="form-text text-secondary small">
+                    Leave empty for no expiration (max: 52,560,000)
+                  </div>
+                </div>
+              )}
+
+              {/* Overall Signature Display */}
+              {overallSignature && (
+                <div className="mt-4 p-3 bg-dark rounded border">
+                  <h6 className="text-secondary mb-3">Blockchain Storage Preview</h6>
+
+                  <div className="mb-3">
+                    <small className="text-secondary d-block mb-1">Wallet Address:</small>
+                    <code className="text-break small text-info">{selectedAccount?.address}</code>
+                  </div>
+
+                  <div className="mb-3">
+                    <small className="text-secondary d-block mb-1">Combined Signature:</small>
+                    <code className="text-break small text-success">{overallSignature}</code>
+                  </div>
+
+                  <div>
+                    <small className="text-secondary d-block mb-1">Expiration Block:</small>
+                    <code className="text-break small text-warning">{expirationBlock || 'No expiration'}</code>
+                  </div>
+                </div>
+              )}
+
+              {/* Sign/Store Documents Button */}
               {inputs.some(input => input.trim()) && (
                 <div className="text-center mt-4">
                   <button
                     className="btn btn-success fw-medium px-4 py-2"
-                    onClick={handleSignDocuments}
-                    disabled={isSigning || !selectedAccount}
+                    onClick={overallSignature ? handleStoreDocuments : handleSignDocuments}
+                    disabled={isSigning || isStoring || !selectedAccount}
                   >
                     {isSigning ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2" role="status"></span>
                         Signing...
                       </>
+                    ) : isStoring ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Storing...
+                      </>
+                    ) : overallSignature ? (
+                      'Store Documents Signature'
                     ) : (
                       'Sign Documents'
                     )}
                   </button>
                 </div>
               )}
+
+              {/* Error Message */}
+              {error && (
+                <div className="alert alert-danger mt-3 mb-0" role="alert">
+                  {error}
+                </div>
+              )}
+
+              {/* Success Message */}
+              {success && (
+                <div className="alert alert-success mt-3 mb-0" role="alert">
+                  {success}
+                </div>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Overall Signature Display */}
-        {overallSignature && (
-          <div className="card shadow-sm border p-4 mt-4">
-            <h2 className="h5 fw-semibold mb-3" style={{ color: "#ededed" }}>
-              Overall Signature
-            </h2>
-            <div className="p-3 bg-dark rounded border mb-3">
-              <small className="text-secondary d-block mb-2">Combined Signature:</small>
-              <code className="text-break small text-success">{overallSignature}</code>
-            </div>
-            <div className="text-center">
-              <button
-                className="btn btn-primary fw-medium px-4 py-2"
-                onClick={() => alert("Store functionality coming soon!")}
-              >
-                Store Documents Signature
-              </button>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

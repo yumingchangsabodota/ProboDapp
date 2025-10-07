@@ -1,7 +1,6 @@
 import { decodeAddress } from '@polkadot/util-crypto';
 import { u8aToHex, stringToHex } from '@polkadot/util';
 import { blake2AsU8a } from '@polkadot/util-crypto';
-import { web3FromAddress } from '@polkadot/extension-dapp';
 
 export class DocSigner {
   /**
@@ -45,6 +44,9 @@ export class DocSigner {
    */
   async signDocuments(walletAddress: string, documents: string[]): Promise<string> {
     try {
+      // Import web3FromAddress only when needed (avoids SSR issues)
+      const { web3FromAddress } = await import('@polkadot/extension-dapp');
+
       // Get the injector for the wallet address
       const injector = await web3FromAddress(walletAddress);
 
