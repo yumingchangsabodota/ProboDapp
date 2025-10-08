@@ -72,7 +72,7 @@ export default function Home() {
                   Whitelist Entity
                 </h2>
                 <p className="text-secondary mb-0">
-                  Manage and verify whitelisted entities
+                  Register as whitelisted entities
                 </p>
               </div>
             </Link>
