@@ -6,5 +6,5 @@ Probo Dapp is a frontend integration to showcase the idea represented in [Probo]
 
 
 ## Demo video
-https://github.com/user-attachments/assets/675c3211-af1a-494f-9bae-bf88f15f5a8d
+https://github.com/user-attachments/assets/6c8a6764-dd94-48d1-b878-90a1578b2897
 
