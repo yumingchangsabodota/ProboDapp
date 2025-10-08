@@ -68,4 +68,16 @@ University P in Country A issues a bachelor's degree. The recipient seeks employ
 **Benefits:** Eliminates institutional communication, reduces verification from months to seconds, creates mathematically infeasible-to-forge credential chains.
 
 
+## Use the below commands to build and run dev server
+#### You can find the commands in the `makefile`
+```shell
+build:
+	docker build -f Dockerfile -t probo-dapp:latest .
 
+run:
+	make build && \
+	docker run --env-file .env --rm --name probo_dapp_container \
+	-v .:/app \
+	-p 3000:3000 \
+	-it probo-dapp:latest npm run dev
+```
