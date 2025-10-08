@@ -5,6 +5,7 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
 const Wallet = dynamic(() => import('./Wallet'), { ssr: false });
+const CurrentBlock = dynamic(() => import('./CurrentBlock'), { ssr: false });
 
 interface HeaderProps {
   // Add props here as needed
@@ -25,6 +26,7 @@ const Header: React.FC<HeaderProps> = ({ className = '' }) => {
 
           {/* Right section (user menu, actions, etc.) */}
           <div className="d-flex align-items-center gap-3">
+            <CurrentBlock />
             <Wallet />
           </div>
         </div>

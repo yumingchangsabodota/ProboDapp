@@ -287,7 +287,7 @@ export default function AuthenticityVerifyPage() {
                       ))}
                     </div>
                     <div>
-                      <small className="text-secondary d-block mb-2">Encrypted Hashes (Generated):</small>
+                      <small className="text-secondary d-block mb-2">Issuer Encrypted Hashes:</small>
                       {verificationResult.encryptedHashes?.map((hash, index) => (
                         <div key={index} className="mb-2">
                           <code className="text-break small d-block p-2 bg-light rounded border">
