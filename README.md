@@ -3,8 +3,17 @@ A decentralized application demonstrating blockchain-based cryptographic proof v
 
 Read the full technical overview and justification [here](https://github.com/yumingchangsabodota/Probo/OVERVIEW.md).
 
-## Demo Scenarios
 
+## Main Functionalities
+- **Register as Whitelist Entity**: Authorize entities to store proofs on-chain (production systems would use governance mechanisms like OpenGov)
+- **Store Issuance Proof**: Encrypt document data, generate hash, sign with private key, and store signature proof on blockchain
+- **Verify Signature Proof**: Retrieve issuer public key, encrypt raw inputs, generate hash, and cryptographically verify signature authenticity
+
+## Demo video
+https://github.com/user-attachments/assets/6c8a6764-dd94-48d1-b878-90a1578b2897
+
+
+## Demo Scenarios
 ### Scenario 1: Cross-Border Travel Document Verification
 
 **Background**: The Embassy of Country A in Country B issues legitimate visas to travelers. However, sophisticated forgers extract authentic visa stickers, replace photos with unauthorized individuals, and affix them to different passports. Transit Country C lacks real-time access to Country A's issuance database, making detection nearly impossible until after unauthorized entry occurs.
@@ -22,12 +31,4 @@ When travelers arrive at Transit Country C, they present their raw visa number a
 Upon arrival in Country B for employment, the recipient presents raw credentials and both signature proofs to licensing authorities. The dApp verifies both signatures sequentially: retrieving each entity's public key, encrypting the raw data, and confirming cryptographic validity. This eliminates direct institutional communication, reduces verification from months to seconds, and makes fraudulent credentials mathematically infeasible—authorities verify the authentic cryptographic chain without accessing centralized databases.
 
 
-## Main Functionalities
-- **Register as Whitelist Entity**: Authorize entities to store proofs on-chain (production systems would use governance mechanisms like OpenGov)
-- **Store Issuance Proof**: Encrypt document data, generate hash, sign with private key, and store signature proof on blockchain
-- **Verify Signature Proof**: Retrieve issuer public key, encrypt raw inputs, generate hash, and cryptographically verify signature authenticity
-
-
-## Demo video
-https://github.com/user-attachments/assets/6c8a6764-dd94-48d1-b878-90a1578b2897
 
