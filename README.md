@@ -1,3 +1,2 @@
 # Still building...
 
-[![Watch the video](https://raw.githubusercontent.com/yumingchangsabodota/ProboDapp/main/doc/demo/thumbnail.png)](https://raw.githubusercontent.com/yumingchangsabodota/ProboDapp/main/doc/demo/probo.mp4)
