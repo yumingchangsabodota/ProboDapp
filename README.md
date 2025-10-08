@@ -3,6 +3,8 @@ A decentralized application demonstrating blockchain-based cryptographic proof v
 
 Read the full technical overview and justification [here](https://github.com/yumingchangsabodota/Probo/OVERVIEW.md).
 
+Two representative scenarios are presented below; however, the framework's generic architecture extends to any multi-party document verification use case.
+
 
 ## Main Functionalities
 - **Register as Whitelist Entity**: Authorize entities to store proofs on-chain (production systems would use governance mechanisms like OpenGov)
